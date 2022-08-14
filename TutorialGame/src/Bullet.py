@@ -23,6 +23,7 @@ class Bullet(pygame.sprite.Sprite):
             self.rect.centery += self._y_speed
         if self.rect.top>self._play_area_rect.bottom or self.rect.bottom<=self._play_area_rect.top:
             self.kill()
+            
     def is_player(self):
         return self._is_player
 
