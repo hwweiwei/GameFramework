@@ -47,6 +47,8 @@ class MyGame(PaiaGame):
         # 建立遊戲物件，並加入該物件的集合
         self.player = Player(pos=(WIDTH // 2, HEIGHT - 80), size=(50, 50), play_area_rect=pygame.Rect(0, 0, WIDTH, HEIGHT))
         self._create_mobs(8)
+        self.mobsnum = 8
+        self.times = 0
         # 撥放音樂
         self.sound_controller.play_music(
             music_path=path.join(ASSET_PATH, "sound/bgm.ogg")
@@ -69,9 +71,9 @@ class MyGame(PaiaGame):
         self.player.update(action)
         self.mobs.update()
         self.bullets.update()
-        print(self.bullets)
+        #print(self.bullets)
 
-        if self.used_frame % 30 == 0:
+        if self.used_frame %30 == 0:
             #子彈
             for mob in self.mobs:
                 self._creat_bullets(is_player=False,init_pos=mob.rect.center)
@@ -85,12 +87,33 @@ class MyGame(PaiaGame):
         hits = pygame.sprite.spritecollide(self.player, self.mobs, True, pygame.sprite.collide_rect_ratio(0.8))
         if hits :
             self.player.collide_with_mobs()
+
         #玩家和子彈
-        hits1 = pygame.sprite.spritecollide(self.player, self.bullets, False, pygame.sprite.collide_rect_ratio(0.8))
-        for bullet in hits1:
+        shot = pygame.sprite.spritecollide(self.player, self.bullets, False, pygame.sprite.collide_rect_ratio(0.8))
+        for bullet in shot:
             if isinstance(bullet,Bullet) and not bullet.is_player():
                 self.player.collide_with_bullets()
+                bullet.kill()
 
+        hits1 = pygame.sprite.groupcollide(self.mobs,self.bullets,False,False,pygame.sprite.collide_rect_ratio(0.8))
+        for mob,bullets in hits1.items():
+            if isinstance(mob,Mob) and bullets[0].is_player():
+                mob.collide_with_bullets()
+                bullets[0].kill()
+                self.player.add_score(score=70-int(mob.size))
+        self.mobsnum = len(self.mobs)
+        print(self.mobsnum)
+        if self.mobsnum <= 3:
+            self.times = self.times +1
+            if self.times == 1:
+                x = random.randrange(8,12)
+            elif self.times == 2:
+                x = random.randrange(10, 15)
+            elif self.times >= 3:
+                x = random.randrange(15, 30)
+            print(x)
+            self.mobsnum = x
+            self._create_mobs(x)
         # 判定是否重置遊戲
         if not self.is_running:
             return "RESET"
