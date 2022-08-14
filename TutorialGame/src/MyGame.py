@@ -86,9 +86,9 @@ class MyGame(PaiaGame):
         if hits :
             self.player.collide_with_mobs()
         #玩家和子彈
-        hits1 = pygame.sprite.spritecollide(self.player, self.bullets, True, pygame.sprite.collide_rect_ratio(0.8))
-        if hits1 and isinstance(hits1[0],Bullet):
-            for times in hits:
+        hits1 = pygame.sprite.spritecollide(self.player, self.bullets, False, pygame.sprite.collide_rect_ratio(0.8))
+        for bullet in hits1:
+            if isinstance(bullet,Bullet) and not bullet.is_player():
                 self.player.collide_with_bullets()
 
         # 判定是否重置遊戲
